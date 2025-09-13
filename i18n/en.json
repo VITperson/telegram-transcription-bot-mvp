@@ -1,0 +1,12 @@
+{
+  "welcome": "Welcome! Send a voice/audio/video or a YouTube link.",
+  "help": "Send media or a single YouTube link. Choose language and mode.",
+  "choose_language": "Choose language:",
+  "choose_mode": "Choose mode:",
+  "queued": "Queued. We will notify when ready.",
+  "playlist_not_supported": "Playlists are not supported yet. Please send a single video link.",
+  "balance_hint": "Your minute balance will be used per job (rounded up).",
+  "history_coming": "History coming soon.",
+  "promo_prompt": "Send a promo code as a message: PROMO: YOURCODE"
+}
+

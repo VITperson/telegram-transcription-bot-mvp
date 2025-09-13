@@ -1,0 +1,32 @@
+# Environment & local
+.env
+.env.*
+*.local
+.DS_Store
+.idea/
+.vscode/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.coverage
+.cache/
+
+# Virtualenv
+.venv/
+venv/
+
+# Builds
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Logs
+*.log
+
+# Project-specific
+snake-game/

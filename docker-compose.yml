@@ -1,0 +1,55 @@
+version: "3.9"
+services:
+  bot_api:
+    build:
+      context: .
+      dockerfile: Dockerfile.bot_api
+    env_file: .env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+      - mysql
+    volumes:
+      - ./:/app
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    env_file: .env
+    depends_on:
+      - redis
+      - mysql
+    volumes:
+      - ./:/app
+
+  admin:
+    build:
+      context: .
+      dockerfile: Dockerfile.admin
+    env_file: .env
+    ports:
+      - "8001:8001"
+    depends_on:
+      - mysql
+      - redis
+    volumes:
+      - ./:/app
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+      MYSQL_DATABASE: transcriber
+      MYSQL_USER: transcriber
+      MYSQL_PASSWORD: example
+    ports:
+      - "3306:3306"
+    command: ["--default-authentication-plugin=mysql_native_password"]
+
