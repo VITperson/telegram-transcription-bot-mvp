@@ -4,7 +4,7 @@ import datetime as dt
 from fastapi import APIRouter, Header, Request, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import insert
-from src.db.session import get_session
+from src.db.session import SessionLocal
 from src.db.models import Payment
 from .providers.dummy import DummyProvider
 
@@ -24,7 +24,7 @@ async def dummy_callback(request: Request, x_dummy_signature: str = Header(defau
     user_id = payload.get("user_id")
     external_id = payload.get("id")
     amount_cents = int(payload.get("amount_cents", 0))
-    async for session in get_session():
+    async with SessionLocal() as session:
         await session.execute(
             insert(Payment).values(
                 user_id=user_id,
@@ -39,4 +39,3 @@ async def dummy_callback(request: Request, x_dummy_signature: str = Header(defau
         )
         await session.commit()
     return {"ok": True}
-

@@ -5,6 +5,7 @@ import shutil
 import subprocess
 import tempfile
 from pathlib import Path
+import os
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 
@@ -12,14 +13,22 @@ from tenacity import retry, stop_after_attempt, wait_exponential
 def youtube_download_to_wav(url: str) -> tuple[str, float]:
     tmpdir = Path(tempfile.mkdtemp(prefix="yt_"))
     out = tmpdir / "video.%(ext)s"
+    # Optional cookies support to bypass YouTube gating if provided
+    cookies_path = os.getenv("YTDLP_COOKIES_PATH")
+    cookies_args: list[str] = []
+    if cookies_path and Path(cookies_path).exists():
+        cookies_args = ["--cookies", cookies_path]
     cmd = [
         "yt-dlp",
+        "--no-playlist",
+        "--extractor-args",
+        "youtube:player_client=android",  # helps avoid some consent/bot checks
         "-f",
         "bestaudio[ext=m4a]/bestaudio/best",
         "-o",
         str(out),
         url,
-    ]
+    ] + cookies_args
     subprocess.run(cmd, check=True)
     # Find downloaded file
     dl_files = list(tmpdir.glob("video.*"))
@@ -86,4 +95,3 @@ def cleanup_temp_file(path: str) -> None:
             shutil.rmtree(d, ignore_errors=True)
     except Exception:
         pass
-

@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from src.core.config import get_settings
 from src.core.logging import configure_logging
 from src.payments.webhooks import router as payments_router
-from src.bot.main import start_bot_polling, stop_bot_polling
+from src.bot.main import start_bot_polling, stop_bot_polling, is_polling
 
 
 settings = get_settings()
@@ -32,6 +32,11 @@ app = FastAPI(title="Transcription Bot API", lifespan=lifespan)
 @app.get("/health")
 async def health():
     return {"status": "ok"}
+
+
+@app.get("/status")
+async def status():
+    return {"status": "ok", "bot_polling": is_polling()}
 
 
 app.include_router(payments_router, prefix="/payments", tags=["payments"])

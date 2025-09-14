@@ -43,13 +43,17 @@ class Settings(BaseSettings):
     CELERY_BROKER_URL: str = "redis://redis:6379/0"
     CELERY_RESULT_BACKEND: str = "redis://redis:6379/0"
 
-    # Whisper
+    # Whisper (local) / STT provider
+    STT_PROVIDER: str = "local"  # "local" or "openai"
     WHISPER_MODEL_SIZE: str = "base"
     WHISPER_COMPUTE_TYPE: str = "int8"  # int8, float16, etc.
+    CPU_THREADS: int = 2  # CPU threads for faster-whisper
+    TRANSCRIBE_WORKERS: int = 1  # internal workers in faster-whisper
 
     # OpenAI
     OPENAI_API_KEY: str | None = None
-    OPENAI_MODEL: str = "gpt-4o-mini"
+    OPENAI_MODEL: str = "gpt-4o-mini"  # for summaries
+    OPENAI_WHISPER_MODEL: str = "whisper-1"  # for transcriptions
 
     # Payments
     PAYMENT_HMAC_SECRET: str = "changeme"
@@ -76,4 +80,3 @@ class Settings(BaseSettings):
 @lru_cache
 def get_settings() -> Settings:
     return Settings()  # type: ignore[arg-type]
-

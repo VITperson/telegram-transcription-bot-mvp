@@ -4,6 +4,7 @@ import re
 from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram.fsm.context import FSMContext
 from src.tasks.tasks import enqueue_transcription_job
 
 
@@ -29,39 +30,41 @@ def mode_keyboard() -> InlineKeyboardBuilder:
 
 
 @router.message(F.text.regexp(YOUTUBE_RE))
-async def on_youtube_link(m: Message):
+async def on_youtube_link(m: Message, state: FSMContext):
     text = m.text or ""
     # Simple playlist detection
     if "list=" in text:
         await m.answer("Playlists are not supported yet. Please send a single video link.")
         return
+    await state.update_data(pending_source={"type": "youtube", "link": text})
     await m.answer("Choose language:", reply_markup=language_keyboard().as_markup())
-    m.conf["pending_source"] = {"type": "youtube", "link": text}
 
 
 @router.message(F.voice | F.audio | F.video)
-async def on_media(m: Message):
+async def on_media(m: Message, state: FSMContext):
     src_type = "voice" if m.voice else ("audio" if m.audio else "video")
+    await state.update_data(pending_source={"type": src_type, "file_id": (m.voice or m.audio or m.video).file_id})
     await m.answer("Choose language:", reply_markup=language_keyboard().as_markup())
-    m.conf["pending_source"] = {"type": src_type, "file_id": (m.voice or m.audio or m.video).file_id}
 
 
 @router.callback_query(F.data.startswith("lang:"))
-async def on_language(cq: CallbackQuery):
+async def on_language(cq: CallbackQuery, state: FSMContext):
     lang = cq.data.split(":", 1)[1]
-    cq.message.conf["chosen_language"] = lang
+    await state.update_data(chosen_language=lang)
+    await cq.answer()
     await cq.message.edit_text("Choose mode:", reply_markup=mode_keyboard().as_markup())
 
 
 @router.callback_query(F.data.startswith("mode:"))
-async def on_mode(cq: CallbackQuery):
+async def on_mode(cq: CallbackQuery, state: FSMContext):
     mode = cq.data.split(":", 1)[1]
-    ctx = cq.message.conf
+    ctx = await state.get_data()
     src = ctx.get("pending_source")
     if not src:
         await cq.answer("No source found. Please resend.", show_alert=True)
         return
     language = ctx.get("chosen_language", "auto")
+    await cq.answer()
     await cq.message.edit_text("Queued. We will notify when ready.")
     await enqueue_transcription_job(
         user_id=cq.from_user.id,
@@ -69,4 +72,3 @@ async def on_mode(cq: CallbackQuery):
         language=language,
         mode=mode,
     )
-
