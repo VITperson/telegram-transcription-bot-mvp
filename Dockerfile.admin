@@ -6,8 +6,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     TZ=UTC
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    pkg-config \
     default-libmysqlclient-dev \
     build-essential \
+    ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -18,4 +20,3 @@ COPY . /app
 
 EXPOSE 8001
 CMD ["python", "admin/manage.py", "runserver", "0.0.0.0:8001"]
-

@@ -13,7 +13,7 @@ redis==5.0.8
 tenacity==9.0.0
 yt-dlp==2024.08.06
 faster-whisper==1.0.3
-ctranslate2==4.5.0
+ctranslate2==4.6.0
 openai==1.51.2
 python-dotenv==1.0.1
 orjson==3.10.7
@@ -25,4 +25,3 @@ pytest-asyncio==0.24.0
 # Django admin service
 Django==5.1.1
 mysqlclient==2.2.4
-

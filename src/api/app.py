@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import contextlib
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from src.core.config import get_settings
@@ -34,4 +35,3 @@ async def health():
 
 
 app.include_router(payments_router, prefix="/payments", tags=["payments"])
-

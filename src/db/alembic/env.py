@@ -1,6 +1,13 @@
 from __future__ import annotations
 
 from logging.config import fileConfig
+import os
+import sys
+
+# Ensure project root is on sys.path so `import src...` works
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../"))
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
 from sqlalchemy import engine_from_config, pool
 from alembic import context
 from src.db.session import Base
@@ -46,4 +53,3 @@ if context.is_offline_mode():
     run_migrations_offline()
 else:
     run_migrations_online()
-

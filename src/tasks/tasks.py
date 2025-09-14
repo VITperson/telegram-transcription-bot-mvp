@@ -8,7 +8,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 import asyncio
 from src.tasks.celery_app import app
 from src.services.media import youtube_download_to_wav, normalize_to_wav, cleanup_temp_file
-from src.services.transcription import transcribe
 from src.services.summarize import SummarizationProvider
 from src.services.exports.txt import build_txt
 from src.services.exports.md import build_md
@@ -49,6 +48,8 @@ def process_job(job_id: int, source: dict[str, Any], language: str, mode: str) -
             # TODO: integrate Telegram file download using bot token
             raise NotImplementedError("Telegram media download not implemented in worker")
 
+        # Lazy import to avoid loading heavy deps at module import time
+        from src.services.transcription import transcribe
         text, segments, file_duration = transcribe(wav_path, language)
         if not duration:
             duration = file_duration
@@ -104,4 +105,3 @@ async def _persist_results(
         await session.commit()
     finally:
         await session.close()
-
