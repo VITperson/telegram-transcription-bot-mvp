@@ -19,5 +19,11 @@ RUN pip install -r requirements.txt
 
 COPY . /app
 
+# Create non-root user for runtime
+RUN useradd -m -u 1000 -s /bin/bash appuser && \
+    chown -R appuser:appuser /app
+
+USER appuser
+
 EXPOSE 8001
 CMD ["python", "admin/manage.py", "runserver", "0.0.0.0:8001"]

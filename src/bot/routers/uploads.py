@@ -10,7 +10,8 @@ from src.tasks.tasks import enqueue_transcription_job
 
 router = Router()
 
-YOUTUBE_RE = re.compile(r"https?://(www\.)?(youtube\.com/watch\?v=|youtu\.be/)[A-Za-z0-9_\-]+")
+# Accept standard, youtu.be, and shorts URLs (single videos only)
+YOUTUBE_RE = re.compile(r"https?://(www\.)?(youtube\.com/(watch\?v=|shorts/)|youtu\.be/)[A-Za-z0-9_\-]+")
 
 
 def language_keyboard() -> InlineKeyboardBuilder:

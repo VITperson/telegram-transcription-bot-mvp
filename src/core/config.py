@@ -54,6 +54,10 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: str | None = None
     OPENAI_MODEL: str = "gpt-4o-mini"  # for summaries
     OPENAI_WHISPER_MODEL: str = "whisper-1"  # for transcriptions
+    OPENAI_TEMPERATURE: float | None = 0.2  # summarization temperature; some models only support default (1)
+    OPENAI_TRANSCRIBE_TEMPERATURE: float | None = 0.0  # transcription temperature (whisper-only); may be ignored by some models
+    # Segmentation
+    MAX_SEGMENT_SECONDS: float = 3.0  # enforce ~2–3s segments
 
     # Payments
     PAYMENT_HMAC_SECRET: str = "changeme"
@@ -61,6 +65,15 @@ class Settings(BaseSettings):
     # Free tier
     FREE_MAX_JOBS_PER_DAY: int = 3
     FREE_MAX_MINUTES_PER_JOB: int = 3
+
+    # yt-dlp options
+    YTDLP_COOKIES_PATH: str | None = None
+    YTDLP_USER_AGENT: str | None = None
+
+    # YouTube transcript fallback (when download fails)
+    YOUTUBE_TRANSCRIPT_FALLBACK: bool = True
+    # Comma-separated preferred languages (ISO codes) e.g. "en,en-US,ru"
+    YOUTUBE_TRANSCRIPT_LANGS: str = "en,en-US,en-GB,ru,uk"
 
     def sqlalchemy_dsn(self) -> str:
         if self.DB_DIALECT.lower() == "postgres":

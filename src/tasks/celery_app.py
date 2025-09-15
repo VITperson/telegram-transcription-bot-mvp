@@ -12,3 +12,5 @@ app = Celery(
     include=["src.tasks.tasks"],
 )
 
+# Celery 6.0 change: retry on startup moved to broker_connection_retry_on_startup
+app.conf.broker_connection_retry_on_startup = True

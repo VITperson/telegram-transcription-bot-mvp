@@ -19,4 +19,10 @@ RUN pip install -r requirements.txt
 
 COPY . /app
 
+# Create non-root user to run the worker
+RUN useradd -m -u 1000 -s /bin/bash appuser && \
+    chown -R appuser:appuser /app
+
+USER appuser
+
 CMD ["celery", "-A", "src.tasks.celery_app", "worker", "--loglevel=INFO", "-O", "fair"]

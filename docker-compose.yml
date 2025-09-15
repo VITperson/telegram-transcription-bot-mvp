@@ -1,4 +1,3 @@
-version: "3.9"
 services:
   bot_api:
     build:
@@ -52,4 +51,3 @@ services:
     ports:
       - "3306:3306"
     command: ["--default-authentication-plugin=mysql_native_password"]
-

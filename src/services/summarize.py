@@ -20,7 +20,7 @@ class SummarizationProvider:
             else:
                 return [line.strip() for line in text.split(".") if line.strip()][:5]
 
-        from openai import OpenAI
+        from openai import OpenAI, BadRequestError
         client = OpenAI(api_key=self.settings.OPENAI_API_KEY)
         prompt = (
             "Summarize the text" if mode == "summary" else "Extract 5-10 key bullet points from the text"
@@ -28,11 +28,24 @@ class SummarizationProvider:
         if language and language != "auto":
             prompt += f" in {language}"
         prompt += ":\n\n" + text[:12000]
-        resp = client.chat.completions.create(
-            model=self.settings.OPENAI_MODEL,
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.2,
-        )
+        req = {
+            "model": self.settings.OPENAI_MODEL,
+            "messages": [{"role": "user", "content": prompt}],
+        }
+        # Add temperature if configured; some models only support default (1) and will reject it.
+        if self.settings.OPENAI_TEMPERATURE is not None:
+            req["temperature"] = float(self.settings.OPENAI_TEMPERATURE)
+
+        try:
+            resp = client.chat.completions.create(**req)  # type: ignore[arg-type]
+        except BadRequestError as e:
+            # Retry once without temperature if the model does not support custom sampling params
+            msg = getattr(e, "message", str(e))
+            if "temperature" in msg and "Only the default" in msg:
+                req.pop("temperature", None)
+                resp = client.chat.completions.create(**req)  # type: ignore[arg-type]
+            else:
+                raise
         content = resp.choices[0].message.content or ""
         if mode == "summary":
             return content.strip()
@@ -43,4 +56,3 @@ class SummarizationProvider:
             if line:
                 bullets.append(line)
         return bullets
-
